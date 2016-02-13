@@ -45,6 +45,10 @@
       <id>repo.jenkins-ci.org</id>
       <url>http://repo.jenkins-ci.org/public/</url>
     </repository>
+      <repository>
+          <id>zomis.net</id>
+          <url>http://www.zomis.net/maven/</url>
+      </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
@@ -62,4 +66,11 @@
   </dependencies>
   -->
 
+    <dependencies>
+        <dependency>
+            <groupId>net.zomis</groupId>
+            <artifactId>duga-core</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
 </project>
