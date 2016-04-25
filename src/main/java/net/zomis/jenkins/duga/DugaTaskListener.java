@@ -60,7 +60,7 @@ public class DugaTaskListener extends RunListener<Run> {
 
         String rooms = config.getRoomIds();
         for (String room : rooms.split(",")) {
-            bot.postAsync(new ChatMessage(WebhookParameters.toRoom(room), string, new Consumer<JsonDocument>() {
+            bot.postAsync(new ChatMessage(bot.room(room), string, new Consumer<JsonDocument>() {
                 @Override
                 public void accept(JsonDocument jsonDocument) {
                     listener.getLogger().println("[DUGA] Message posted: " + string);
