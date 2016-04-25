@@ -6,7 +6,6 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
 import net.zomis.duga.chat.*;
-import net.zomis.duga.chat.events.DugaStartedEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,10 +15,6 @@ import java.util.function.Consumer;
 public class DugaTaskListener extends RunListener<Run> {
 
     private final Map<String, StackExchangeChatBot> bots = new HashMap<String, StackExchangeChatBot>();
-
-    public DugaTaskListener() {
-        System.out.println("Create DugaTaskListener");
-    }
 
     @Override
     public void onCompleted(Run run, TaskListener listener) {
