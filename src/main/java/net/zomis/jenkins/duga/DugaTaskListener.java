@@ -30,8 +30,8 @@ public class DugaTaskListener extends RunListener<Run> {
         BotConfiguration botConfig = new BotConfiguration();
         botConfig.setBotEmail(credentials.getUsername());
         botConfig.setBotPassword(credentials.getPassword().getPlainText());
-        botConfig.setRootUrl("http://stackexchange.com");
-        botConfig.setChatUrl("http://chat.stackexchange.com");
+        botConfig.setRootUrl("https://stackexchange.com");
+        botConfig.setChatUrl("https://chat.stackexchange.com");
         StackExchangeChatBot bot = new StackExchangeChatBot(botConfig);
         bot.start();
         bots.put(id, bot);
