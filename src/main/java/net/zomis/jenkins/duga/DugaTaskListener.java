@@ -1,12 +1,15 @@
 package net.zomis.jenkins.duga;
 
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.gistlabs.mechanize.document.json.JsonDocument;
 import hudson.Extension;
+import hudson.ExtensionList;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
+import jenkins.tasks.SimpleBuildStep;
 import net.zomis.duga.chat.*;
-import net.zomis.duga.chat.events.DugaStartedEvent;
+import org.jenkinsci.Symbol;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +24,25 @@ public class DugaTaskListener extends RunListener<Run> {
         System.out.println("Create DugaTaskListener");
     }
 
+    public ChatBot getBot(StandardUsernamePasswordCredentials credentials) {
+        String id = credentials.getId();
+        if (bots.get(id) != null) {
+            return bots.get(id);
+        }
+        BotConfiguration botConfig = new BotConfiguration();
+        botConfig.setBotEmail(credentials.getUsername());
+        botConfig.setBotPassword(credentials.getPassword().getPlainText());
+        botConfig.setRootUrl("http://stackexchange.com");
+        botConfig.setChatUrl("http://chat.stackexchange.com");
+        StackExchangeChatBot bot = new StackExchangeChatBot(botConfig);
+        bot.start();
+        bots.put(id, bot);
+        return bot;
+    }
+
     @Override
     public void onCompleted(Run run, TaskListener listener) {
+        ExtensionList.lookup(DugaTaskListener.class);
         post(run, listener, "Completed with status " + run.getResult());
     }
 
@@ -33,21 +53,7 @@ public class DugaTaskListener extends RunListener<Run> {
             return;
         }
 
-        String id = config.getCredentials().getId();
-        if (bots.get(id) == null) {
-            BotConfiguration botConfig = new BotConfiguration();
-            botConfig.setBotEmail(config.getCredentials().getUsername());
-            botConfig.setBotPassword(config.getCredentials().getPassword().getPlainText());
-            botConfig.setRootUrl("http://stackexchange.com");
-            botConfig.setChatUrl("http://chat.stackexchange.com");
-            listener.getLogger().println("[DUGA] No bot running for id " + id + ", starting one.");
-            StackExchangeChatBot bot = new StackExchangeChatBot(botConfig);
-            bot.start();
-            listener.getLogger().println("[DUGA] Bot for id " + id + " started");
-            bots.put(id, bot);
-        }
-
-        ChatBot bot = bots.get(id);
+        ChatBot bot = getBot(config.getCredentials());
 
         // [JOB-NAME] BUILD STARTED/COMPLETED/FAILED
         String job = String.format("**\\[[%s](%s)\\]**", run.getParent().getName(), run.getParent().getAbsoluteUrl());
@@ -60,7 +66,7 @@ public class DugaTaskListener extends RunListener<Run> {
 
         String rooms = config.getRoomIds();
         for (String room : rooms.split(",")) {
-            bot.postAsync(new ChatMessage(WebhookParameters.toRoom(room), string, new Consumer<JsonDocument>() {
+            bot.postAsync(new ChatMessage(new BotRoom(bot, room), string, new Consumer<JsonDocument>() {
                 @Override
                 public void accept(JsonDocument jsonDocument) {
                     listener.getLogger().println("[DUGA] Message posted: " + string);
