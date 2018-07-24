@@ -71,7 +71,7 @@
         <dependency>
             <groupId>net.zomis</groupId>
             <artifactId>duga-core</artifactId>
-            <version>0.2</version>
+            <version>0.3</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
